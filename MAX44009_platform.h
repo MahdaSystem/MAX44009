@@ -63,8 +63,8 @@ extern "C"
 /**
  * @brief  Specify I2C options of ESP32
  */
-#define MAX44009_I2C_Num      I2C_NUM_1
-#define MAX44009_I2C_Rate     100000
+#define MAX44009_I2C_NUM      I2C_NUM_1
+#define MAX44009_I2C_RATE     100000
 #define MAX44009_SCL_GPIO     GPIO_NUM_22
 #define MAX44009_SDA_GPIO     GPIO_NUM_21
 #endif

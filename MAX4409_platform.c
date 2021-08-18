@@ -37,8 +37,7 @@
 #include "sdkconfig.h"
 #include "esp_system.h"
 #include "driver/i2c.h"
-#include "main.h"
-#include "TR10_I2C.h"
+#include "driver/gpio.h"
 #endif
 
 
@@ -49,28 +48,41 @@
  ==================================================================================
  */
 
-static void
+static int8_t
 Platform_Init(void)
 {
 #if defined(MAX44009_PLATFORM_AVR)
   TWBR = (uint8_t)(MAX44009_CPU_CLK - 1600000) / (2 * 100000);
 #elif defined(MAX44009_PLATFORM_ESP32_IDF)
-  I2C_Initialize(0, 100000);
+  i2c_config_t conf;
+  conf.mode = I2C_MODE_MASTER;
+  conf.sda_io_num = MAX44009_SDA_GPIO;
+  conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
+  conf.scl_io_num = MAX44009_SCL_GPIO;
+  conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
+  conf.master.clk_speed = MAX44009_I2C_RATE;
+  if (i2c_param_config(MAX44009_I2C_NUM, &conf) != ESP_OK)
+    return -1;
+  if (i2c_driver_install(MAX44009_I2C_NUM, conf.mode, 0, 0, 0) != ESP_OK)
+    return -1;
 #endif
+  return 0;
 }
 
 
-static void
+static int8_t
 Platform_DeInit(void)
 {
 #if defined(MAX44009_PLATFORM_AVR)
 #elif defined(MAX44009_PLATFORM_ESP32_IDF)
-  I2C_Uninitialize(0);
+  i2c_driver_delete(MAX44009_I2C_NUM);
+  gpio_reset_pin(MAX44009_SDA_GPIO);
+  gpio_reset_pin(MAX44009_SCL_GPIO);
 #endif
 }
 
 
-static void
+static int8_t
 Platform_Send(uint8_t Address, uint8_t *Data, uint8_t Len)
 {
 #if defined(MAX44009_PLATFORM_AVR)
@@ -93,11 +105,25 @@ Platform_Send(uint8_t Address, uint8_t *Data, uint8_t Len)
   TWCR = _BV(TWEN) | _BV(TWINT) | _BV(TWSTO); // send the STOP mode bit
 
 #elif defined(MAX44009_PLATFORM_ESP32_IDF)
-  I2C_Send(0, Address, Data, Len);
+  i2c_cmd_handle_t MAX44009_i2c_cmd_handle = 0;
+  Address <<= 1;
+  Address &= 0xFE;
+
+  MAX44009_i2c_cmd_handle = i2c_cmd_link_create();
+  i2c_master_start(MAX44009_i2c_cmd_handle);
+  i2c_master_write(MAX44009_i2c_cmd_handle, &Address, 1, 1);
+  i2c_master_write(MAX44009_i2c_cmd_handle, Data, Len, 1);
+  i2c_master_stop(MAX44009_i2c_cmd_handle);
+  if (i2c_master_cmd_begin(MAX44009_I2C_NUM, MAX44009_i2c_cmd_handle, 1000 / portTICK_RATE_MS) != ESP_OK)
+  {
+    i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
+    return -1;
+  }
+  i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
 #endif
 }
 
-static void
+static int8_t
 PlatformReceive(uint8_t Address, uint8_t *Data, uint8_t Len)
 {
 #if defined(MAX44009_PLATFORM_AVR)
@@ -122,7 +148,21 @@ PlatformReceive(uint8_t Address, uint8_t *Data, uint8_t Len)
 
   TWCR = _BV(TWEN) | _BV(TWINT) | _BV(TWSTO); // send the STOP mode bit
 #elif defined(MAX44009_PLATFORM_ESP32_IDF)
-  I2C_Receive(0, Address, Data, Len);
+  i2c_cmd_handle_t MAX44009_i2c_cmd_handle = 0;
+  Address <<= 1;
+  Address |= 0x01;
+
+  MAX44009_i2c_cmd_handle = i2c_cmd_link_create();
+  i2c_master_start(MAX44009_i2c_cmd_handle);
+  i2c_master_write(MAX44009_i2c_cmd_handle, &Address, 1, 1);
+  i2c_master_read(MAX44009_i2c_cmd_handle, Data, Len, I2C_MASTER_LAST_NACK);
+  i2c_master_stop(MAX44009_i2c_cmd_handle);
+  if (i2c_master_cmd_begin(MAX44009_I2C_NUM, MAX44009_i2c_cmd_handle, 1000 / portTICK_RATE_MS) != ESP_OK)
+  {
+    i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
+    return -1;
+  }
+  i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
 #endif
 }
 
