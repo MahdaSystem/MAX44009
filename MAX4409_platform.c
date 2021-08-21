@@ -79,6 +79,7 @@ Platform_DeInit(void)
   gpio_reset_pin(MAX44009_SDA_GPIO);
   gpio_reset_pin(MAX44009_SCL_GPIO);
 #endif
+  return 0;
 }
 
 
@@ -121,6 +122,7 @@ Platform_Send(uint8_t Address, uint8_t *Data, uint8_t Len)
   }
   i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
 #endif
+  return 0;
 }
 
 static int8_t
@@ -164,6 +166,7 @@ PlatformReceive(uint8_t Address, uint8_t *Data, uint8_t Len)
   }
   i2c_cmd_link_delete(MAX44009_i2c_cmd_handle);
 #endif
+  return 0;
 }
 
 
