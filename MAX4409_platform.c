@@ -31,9 +31,9 @@
 /* Includes ---------------------------------------------------------------------*/
 #include "MAX44009_platform.h"
 
-#if defined(DS1307_PLATFORM_AVR)
+#if defined(MAX44009_PLATFORM_AVR)
 #include <avr/io.h>
-#elif defined(DS1307_PLATFORM_ESP32_IDF)
+#elif defined(MAX44009_PLATFORM_ESP32_IDF)
 #include "sdkconfig.h"
 #include "esp_system.h"
 #include "driver/i2c.h"
