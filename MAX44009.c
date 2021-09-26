@@ -75,7 +75,7 @@ MAX44009_WriteReg(MAX44009_Handler_t *Handler, uint8_t RegAddress, uint8_t Data)
 static MAX44009_Result_t
 MAX44009_ReadReg(MAX44009_Handler_t *Handler, uint8_t RegAddress, uint8_t *Data)
 {
-  if (Handler->PlatformSend(Handler->AddressI2C, RegAddress, 1) != 0)
+  if (Handler->PlatformSend(Handler->AddressI2C, &RegAddress, 1) != 0)
     return MAX44009_FAIL;
   if (Handler->PlatformReceive(Handler->AddressI2C, Data, 1) != 0)
     return MAX44009_FAIL;
