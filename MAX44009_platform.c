@@ -54,7 +54,7 @@ Platform_Init(void)
 #if defined(MAX44009_PLATFORM_AVR)
   TWBR = (uint8_t)(MAX44009_CPU_CLK - 1600000) / (2 * 100000);
 #elif defined(MAX44009_PLATFORM_ESP32_IDF)
-  i2c_config_t conf;
+  i2c_config_t conf = {0};
   conf.mode = I2C_MODE_MASTER;
   conf.sda_io_num = MAX44009_SDA_GPIO;
   conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
