@@ -69,7 +69,7 @@ int main(void)
 int8_t
 MAX44009_Platform_Init(void)
 {
-  i2c_config_t conf;
+  i2c_config_t conf = {0};
   conf.mode = I2C_MODE_MASTER;
   conf.sda_io_num = MAX44009_SDA_GPIO;
   conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
@@ -134,18 +134,6 @@ MAX44009_Platform_Receive(uint8_t Address, uint8_t *Data, uint8_t DataLen)
   return 0;
 }
 
-int8_t
-MAX44009_Platform_CRC(uint16_t Data, uint8_t DataCRC)
-{
-  return 0;
-}
-
-int8_t
-MAX44009_Platform_Delay(uint8_t Delay)
-{
-  vTaskDelay(Delay / portTICK_PERIOD_MS);
-  return 0;
-}
 
 int main(void)
 {
@@ -156,8 +144,6 @@ int main(void)
   Handler.PlatformDeInit  = MAX44009_Platform_DeInit;
   Handler.PlatformSend    = MAX44009_Platform_Send;
   Handler.PlatformReceive = MAX44009_Platform_Receive;
-  Handler.PlatformCRC     = MAX44009_Platform_CRC;
-  Handler.PlatformDelay   = MAX44009_Platform_Delay;
 
   MAX44009_Init(&Handler);
   MAX44009_SetAddressI2C(&Handler, 0);
