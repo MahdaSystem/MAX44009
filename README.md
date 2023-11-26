@@ -35,7 +35,7 @@ int main(void)
 
   while (1)
   {
-    SHT1x_ReadSample(&Handler, &Sample);
+    MAX44009_ReadSample(&Handler, &Sample);
     printf("Light Intensity: %fLux\r\n\r\n",
            Sample.Lux);
   }
