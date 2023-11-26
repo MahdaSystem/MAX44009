@@ -7,6 +7,7 @@ MAX44009 sensor driver.
 It is easy to port this library to any platform. But now it is ready for use in:
 - AVR (ATmega32)
 - ESP32 (esp-idf)
+- STM32 (HAL)
 
 ## How To Use
 1. Add `MAX44009.h` and `MAX44009.c` files to your project.  It is optional to use `MAX44009_platform.h` and `MAX44009_platform.c` files (open and config `MAX44009_platform.h` file).
